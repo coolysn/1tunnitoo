@@ -16,8 +16,15 @@ class Todo {
         document.querySelector("#addButton").addEventListener("click", () => {this.addEntry()});
     }
 
+    formatDate(dateString){
+        if(!dateString) return ""; //ChatGPT "Kuidas kontrollida, kas muutuja dateString on tühi või määramata"
+        //Idee tuli siit - https://stackoverflow.com/questions/72250220/how-to-split-date-strings-in-javascript-array
+        const [year, month, day] = dateString.split("-");
+        return `${day}.${month}.${year}`;
+    }
+
     addEntry() {
-        console.log("vajutasin nuppu UWU");
+        console.log("vajutasin nuppu");
         const titleValue = document.querySelector("#title").value;
         const descriptionValue = document.querySelector("#description").value;
         const dateValue = document.querySelector("#date").value;
@@ -88,27 +95,33 @@ class Todo {
                 const dateInput = document.createElement("input");
                 dateInput.type = "date";
                 dateInput.value = currentDate;
-                //teeb kõigepealt innerhtmli converti 
+
+                //ChatGPT "Kuidas kõigepealt eemaldada vana sisu enne uue lisamist innerHTML abil?"
                 li.innerHTML = '';
                 li.appendChild(titleInput);
                 li.appendChild(descriptionInput);
                 li.appendChild(dateInput);
-                //vt txt faili
+            
                 const okButton = document.createElement("button");
                 okButton.innerText = "OK";
                 okButton.className = "OK";
-                okButton.addEventListener("click", () => {
+                //ChatGPT "kas on võimalik teha event listener event listeneri sees ja näidet selle kohta"
+                function handleOkButton() {
                     this.entries[entryIndex].title = titleInput.value;
                     this.entries[entryIndex].description = descriptionInput.value;
                     this.entries[entryIndex].date = dateInput.value;
                     this.save();
-                });
+                };
+
+                okButton.removeEventListener("click", handleOkButton); 
+                //bind() kasutamine https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+                okButton.addEventListener("click", handleOkButton.bind(this));
                 li.appendChild(okButton);
             });
 
             div.className = "task";
 
-            div.innerHTML = `<div>tekst ${entryValue.title}</div><div>${entryValue.description}</div><div>${entryValue.date}</div>`;
+            div.innerHTML = `<div> ${entryValue.title}</div><div>${entryValue.description}</div><div>${this.formatDate(entryValue.date)}</div>`;
             
             if(this.entries[entryIndex].done){
                 doneButton.classList.add("done-task");
@@ -116,7 +129,6 @@ class Todo {
             } else{
                 ul.appendChild(li);
             }
-
 
             li.appendChild(div);
             li.appendChild(buttonDiv);
