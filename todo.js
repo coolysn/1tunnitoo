@@ -1,10 +1,11 @@
 console.log("fail ühendatud");
 
 class Entry {
-    constructor(title, description, date) {
+    constructor(title, description, date, priority) {
         this.title = title;
         this.description = description;
         this.date = date;
+        this.priority = priority;
         this.done = false;
     }
 }
@@ -23,21 +24,37 @@ class Todo {
         return `${day}.${month}.${year}`;
     }
 
+    sortEntries(){
+        const priorityOrder = {"1 - High": 1, "2 - Medium": 2, "3 - Low": 3};
+        this.entries.sort((a, b) => {
+            const priorityComparison = priorityOrder[a.priority] - priorityOrder[b.priority];
+            if (priorityComparison !== 0) {
+                return priorityComparison; 
+            }
+           return new Date(a.date) - new Date(b.date); //Idee tuli siit - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+        });   
+    }
+
     addEntry() {
         console.log("vajutasin nuppu");
         const titleValue = document.querySelector("#title").value;
         const descriptionValue = document.querySelector("#description").value;
         const dateValue = document.querySelector("#date").value;
+        const priorityValue = document.querySelector("#priority").value;
 
-        this.entries.push(new Entry(titleValue, descriptionValue, dateValue));
+        this.entries.push(new Entry(titleValue, descriptionValue, dateValue, priorityValue));
+
+        this.sortEntries();
+
         console.log(this.entries);
         this.save();
    }
 
     render() {
+        this.sortEntries();
         let tasklist = document.querySelector("#taskList");
         tasklist.innerHTML = "";
-    
+
         const ul = document.createElement("ul");
         const doneUl = document.createElement("ul");
         ul.className = "todo-list";
@@ -47,9 +64,11 @@ class Todo {
         taskHeading.innerText = "Todo";
         doneHeading.innerText = "Done tasks";
 
+        const priorityMapping = { "1": "1 - High", "2": "2 - Medium", "3": "3 - Low" };
 
         this.entries.forEach((entryValue, entryIndex) => {
             const li = document.createElement("li");
+            li.classList.add(`priority-${entryValue.priority}`);
             const div = document.createElement("div");
             const buttonDiv = document.createElement("div");
             buttonDiv.className = "button-container";
@@ -82,6 +101,7 @@ class Todo {
             editButton.addEventListener("click", () => {
                 const currentTitle = this.entries[entryIndex].title;
                 const currentDescription = this.entries[entryIndex].description;
+                const currentPriority = this.entries[entryIndex].priority;
                 const currentDate = this.entries[entryIndex].date;
 
                 const titleInput = document.createElement("input");
@@ -96,10 +116,21 @@ class Todo {
                 dateInput.type = "date";
                 dateInput.value = currentDate;
 
-                //ChatGPT "Kuidas kõigepealt eemaldada vana sisu enne uue lisamist innerHTML abil?"
+                //ChatGPT - "Editimisel kuvatakse prioriteet õigesti kui '1 - High',  kuid uue ülesande lisamisel salvestatakse see ainult numbrina. Kuidas tagada, et prioriteet  sisaldaks numbrit ja teksti?"
+                const prioritySelect = document.createElement("select");
+                Object.entries(priorityMapping).forEach(([key, value]) => {
+                const option = document.createElement("option");
+                option.value = key; // Salvestatakse numbrina
+                option.textContent = value; // Kuvatakse teksti
+                if (key === currentPriority) option.selected = true;
+                prioritySelect.appendChild(option);
+            });
+
+                //ChatGPT "Kuidas kõigepealt eemaldada vana sisu enne uue lisamist innerHTML abil, kas see on vale kasutada kui nt sisu ei muudeta?"
                 li.innerHTML = '';
                 li.appendChild(titleInput);
                 li.appendChild(descriptionInput);
+                li.appendChild(prioritySelect);
                 li.appendChild(dateInput);
             
                 const okButton = document.createElement("button");
@@ -110,6 +141,7 @@ class Todo {
                     this.entries[entryIndex].title = titleInput.value;
                     this.entries[entryIndex].description = descriptionInput.value;
                     this.entries[entryIndex].date = dateInput.value;
+                    this.entries[entryIndex].priority = prioritySelect.value;
                     this.save();
                 };
 
@@ -121,7 +153,10 @@ class Todo {
 
             div.className = "task";
 
-            div.innerHTML = `<div> ${entryValue.title}</div><div>${entryValue.description}</div><div>${this.formatDate(entryValue.date)}</div>`;
+            div.innerHTML = `<div> ${entryValue.title}</div>
+                         <div>${entryValue.description}</div>
+                         <div>${this.formatDate(entryValue.date)}</div>
+                         <div>${priorityMapping[entryValue.priority] || entryValue.priority}</div>`; 
             
             if(this.entries[entryIndex].done){
                 doneButton.classList.add("done-task");
