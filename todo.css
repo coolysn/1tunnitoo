@@ -27,6 +27,36 @@ body {
     align-items: center;
 }
 
+#taskContainer{
+    background: rgba(255, 255, 255, 0.8); 
+    padding: 20px; 
+    border-radius: 15px; 
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    width: 90%; 
+    max-width: 500px; 
+    margin: 20px auto; 
+}
+
+#taskList {
+    min-height: 100px;
+}
+
+.task-title { /*Võetud siit: https://htmlcheatsheet.com/css/# */
+    font-family: Georgia, serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    word-spacing: 2px;
+    color: #000000;
+    font-weight: 700;
+    text-decoration: underline solid rgb(68, 68, 68);
+    font-style: normal;
+    font-variant: small-caps;
+    text-transform: none;
+}
+
+.task-description{
+    font-style: italic;
+}
 .todo-list > li{
     display: flex;
     justify-content: space-between;
@@ -76,6 +106,16 @@ body {
 h2{
     text-align: center;
     font-size: 1.25rem;
+}
+
+.priority-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    color: rgb(104, 104, 104);
 }
 
 .priority-1 { 

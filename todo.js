@@ -25,7 +25,7 @@ class Todo {
     }
 
     sortEntries(){
-        const priorityOrder = {"1 - High": 1, "2 - Medium": 2, "3 - Low": 3};
+        const priorityOrder = {"1": 1, "2": 2, "3": 3};
         this.entries.sort((a, b) => {
             const priorityComparison = priorityOrder[a.priority] - priorityOrder[b.priority];
             if (priorityComparison !== 0) {
@@ -153,11 +153,20 @@ class Todo {
 
             div.className = "task";
 
-            div.innerHTML = `<div> ${entryValue.title}</div>
-                         <div>${entryValue.description}</div>
-                         <div>${this.formatDate(entryValue.date)}</div>
-                         <div>${priorityMapping[entryValue.priority] || entryValue.priority}</div>`; 
+            const priorityIcons = {
+                "1": "🔴 High",
+                "2": "🟠 Medium",
+                "3": "🟢 Low"
+            };
             
+            div.innerHTML = `<div class="task-title">${entryValue.title}</div>
+                 <div class= "task-description">${entryValue.description}</div>
+                 <div>${this.formatDate(entryValue.date)}</div>
+                 <div class="priority-badge priority-${entryValue.priority}">
+                     ${priorityIcons[priorityMapping[entryValue.priority]] || ""} 
+                     ${priorityMapping[entryValue.priority] || entryValue.priority}
+                 </div>`;
+
             if(this.entries[entryIndex].done){
                 doneButton.classList.add("done-task");
                 doneUl.appendChild(li);
